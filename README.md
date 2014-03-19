@@ -22,6 +22,13 @@ Usage of s3stub:
   -r="": The root path of the server
 ```
 
+If you have Docker installed:
+
+```bash
+% docker pull rochacon/s3stub
+% docker run -d -p 8000:80 rochacon/s3stub
+```
+
 Usage
 -----
 
