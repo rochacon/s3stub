@@ -15,7 +15,7 @@ import (
 	"path"
 )
 
-var BasePath string
+var Root string
 
 type ReadHasher struct {
 	h hash.Hash
@@ -38,9 +38,13 @@ func (rh *ReadHasher) Sum(b []byte) []byte {
 }
 
 func main() {
-	flag.StringVar(&BasePath, "r", "", "The root path of the server")
+	var bind string
+
+	flag.StringVar(&bind, "b", "127.0.0.1:8000", "The address to bind to")
+	flag.StringVar(&Root, "r", "", "The root path of the server")
 	flag.Parse()
-	if BasePath == "" {
+
+	if Root == "" {
 		fmt.Println("s3stub:")
 		flag.PrintDefaults()
 		return
@@ -49,16 +53,17 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/{path:.+}", download).Methods("GET")
 	r.HandleFunc("/{path:.+}", upload).Methods("PUT")
+	r.HandleFunc("/{path:.+}", delete).Methods("DELETE")
 
 	http.Handle("/", r)
 
-	log.Println("Listening on :8000")
-	log.Println("BasePath:", BasePath)
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Println("Listening on:", bind)
+	log.Println("Root:", Root)
+	log.Fatal(http.ListenAndServe(bind, nil))
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
-	filename := path.Join(BasePath, r.URL.Path)
+	filename := path.Join(Root, r.URL.Path)
 
 	fp, err := os.Open(filename)
 	if err != nil {
@@ -75,7 +80,7 @@ func download(w http.ResponseWriter, r *http.Request) {
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
-	filename := path.Join(BasePath, r.URL.Path)
+	filename := path.Join(Root, r.URL.Path)
 
 	os.MkdirAll(path.Dir(filename), 0700)
 
@@ -89,4 +94,21 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	bodyReader := &ReadHasher{h: sha256.New(), r: r.Body}
 	io.Copy(fp, bodyReader)
 	fmt.Fprintf(w, "%x", bodyReader.Sum(nil))
+}
+
+func delete(w http.ResponseWriter, r *http.Request) {
+	filename := path.Join(Root, r.URL.Path)
+
+	err := os.Remove(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, err.Error(), 404)
+		} else {
+			fmt.Println("wat")
+			http.Error(w, err.Error(), 500)
+		}
+		return
+	}
+
+	w.WriteHeader(204)
 }
