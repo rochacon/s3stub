@@ -63,6 +63,7 @@ func main() {
 }
 
 func download(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET", r.URL.Path)
 	filename := path.Join(Root, r.URL.Path)
 
 	fp, err := os.Open(filename)
@@ -80,6 +81,7 @@ func download(w http.ResponseWriter, r *http.Request) {
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
+	log.Println("PUT", r.URL.Path)
 	filename := path.Join(Root, r.URL.Path)
 
 	os.MkdirAll(path.Dir(filename), 0700)
@@ -97,6 +99,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
+	log.Println("DELETE", r.URL.Path)
 	filename := path.Join(Root, r.URL.Path)
 
 	err := os.Remove(filename)
