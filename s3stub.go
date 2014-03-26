@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 )
 
 var Root string
@@ -51,6 +53,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/", list).Methods("GET")
 	r.HandleFunc("/{path:.+}", download).Methods("GET")
 	r.HandleFunc("/{path:.+}", exists).Methods("HEAD")
 	r.HandleFunc("/{path:.+}", upload).Methods("PUT")
@@ -82,8 +85,8 @@ func download(w http.ResponseWriter, r *http.Request) {
 }
 
 func exists(w http.ResponseWriter, r *http.Request) {
-    log.Println("HEAD", r.URL.Path)
-    filename := path.Join(Root, r.URL.Path)
+	log.Println("HEAD", r.URL.Path)
+	filename := path.Join(Root, r.URL.Path)
 
 	fp, err := os.Open(filename)
 	if err != nil {
@@ -97,6 +100,20 @@ func exists(w http.ResponseWriter, r *http.Request) {
 	defer fp.Close()
 
 	w.WriteHeader(204)
+}
+
+func list(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET", r.URL.Path)
+
+	printpath := func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		fmt.Fprintf(w, "%s\n", strings.Replace(path, Root, "/", -1))
+		return nil
+	}
+
+	filepath.Walk(Root, printpath)
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
