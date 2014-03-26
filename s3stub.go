@@ -52,6 +52,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{path:.+}", download).Methods("GET")
+	r.HandleFunc("/{path:.+}", exists).Methods("HEAD")
 	r.HandleFunc("/{path:.+}", upload).Methods("PUT")
 	r.HandleFunc("/{path:.+}", delete).Methods("DELETE")
 
@@ -78,6 +79,24 @@ func download(w http.ResponseWriter, r *http.Request) {
 	defer fp.Close()
 
 	io.Copy(w, fp)
+}
+
+func exists(w http.ResponseWriter, r *http.Request) {
+    log.Println("HEAD", r.URL.Path)
+    filename := path.Join(Root, r.URL.Path)
+
+	fp, err := os.Open(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, err.Error(), 404)
+		} else {
+			http.Error(w, err.Error(), 500)
+		}
+		return
+	}
+	defer fp.Close()
+
+	w.WriteHeader(204)
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
