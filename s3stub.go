@@ -91,9 +91,10 @@ func exists(w http.ResponseWriter, r *http.Request) {
 	fp, err := os.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			http.Error(w, err.Error(), 404)
+			w.WriteHeader(404)
 		} else {
-			http.Error(w, err.Error(), 500)
+			log.Println("HEAD", r.URL.Path, err.Error())
+			w.WriteHeader(500)
 		}
 		return
 	}
