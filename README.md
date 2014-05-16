@@ -32,7 +32,7 @@ If you have Docker installed:
 Usage
 -----
 
-## Listing keys
+### Listing keys
 
 To list available keys, make a `GET` request:
 
@@ -44,7 +44,7 @@ To list available keys, make a `GET` request:
 ```
 
 
-## Writing blobs
+### Writing blobs
 
 To write/update a blob, make a `PUT` request:
 
@@ -56,7 +56,7 @@ To write/update a blob, make a `PUT` request:
 The SHA-256 hash of the file is returned for integrity check.
 
 
-## Reading blobs
+### Reading blobs
 
 To retrieve a blob, make a `GET` request:
 
@@ -65,7 +65,8 @@ To retrieve a blob, make a `GET` request:
 new file content
 ```
 
-## Checking for blobs existence
+
+### Checking for blobs existence
 
 To check for a blob existence, make a `HEAD` request:
 
@@ -78,7 +79,7 @@ Content-Type: text/plain; charset=utf-8
 ```
 
 
-## Deleting blobs
+### Deleting blobs
 
 To delete a file, make a `DELETE` request:
 
@@ -91,7 +92,7 @@ Content-Type: text/plain; charset=utf-8
 ```
 
 
-## Common errors
+### Common errors
 
 For `GET`, `HEAD` and `DELETE`, if a file is not found an `HTTP 404 Not Found` response is returned:
 
