@@ -110,7 +110,7 @@ func list(w http.ResponseWriter, r *http.Request) {
 		if info.IsDir() {
 			return nil
 		}
-		fmt.Fprintf(w, "%s\n", strings.Replace(path, Root, "/", -1))
+		fmt.Fprintf(w, "%s\n", strings.Replace(path, Root, "", 1))
 		return nil
 	}
 
